@@ -1,9 +1,11 @@
 const Post = require("../Models/PostModel");
 const mongoose = require("mongoose");
 
-const getPost = async (req,res) => {
+const getPost = async (req, res) => {
 
     try {
+
+
 
         const posts = await Post.find()
         if (posts) {
@@ -12,7 +14,6 @@ const getPost = async (req,res) => {
         else {
             res.json({ message: "nothing to show" });
         }
-
 
     }
     catch (error) {
@@ -25,16 +26,15 @@ const getComment = async (req, res) => {
 
     try {
 
-        const {postId} = req.query;
+        const { postId } = req.query;
         const postIdObject = new mongoose.Types.ObjectId(postId);
-        const post = await Post.findById({_id:postIdObject});
-      const comments=  post.comments
-        if(comments)
-        {
-        res.json(comments)
+        const post = await Post.findById({ _id: postIdObject });
+        const comments = post.comments
+        if (comments) {
+            res.json(comments)
         }
-        else{
-            res.json({message:"no comment avalible"})
+        else {
+            res.json({ message: "no comment avalible" })
         }
 
 
@@ -46,4 +46,32 @@ const getComment = async (req, res) => {
     }
 }
 
-module.exports = {getPost,getComment}
+const getlikes = async (req, res) => {
+
+    try {
+
+        const { postId } = req.query;
+
+        const postIdObject = new mongoose.Types.ObjectId(postId);
+        const post = await Post.findById({ _id: postIdObject });
+        const liker = post.likeby;
+
+        const objectIdString = liker.toString();
+        if (objectIdString) {
+
+            res.json(objectIdString)
+        }
+        else {
+            res.json({ message: "no like avalible" })
+        }
+
+
+
+    }
+    catch (error) {
+        console.log(error);
+        res.json({ message: "something went wrong" });
+    }
+}
+
+module.exports = { getPost, getComment, getlikes }

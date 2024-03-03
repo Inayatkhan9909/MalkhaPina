@@ -59,8 +59,15 @@ const addlike = async (req, res) => {
 
     try {
         const { postId, userId } = req.body;
+        
+         const isValidObjectId = await new mongoose.Types.ObjectId(postId);
 
-        const post = await Post.findById({ postId });
+       
+
+ 
+
+        const post = await Post.findById({ _id:isValidObjectId });
+        
         if (!post.likeby.includes(userId)) {
             post.likeby.push(userId);
             const liked = post.save();
@@ -71,7 +78,6 @@ const addlike = async (req, res) => {
             else {
                 res.json("like failed");
             }
-
 
         }
         else {

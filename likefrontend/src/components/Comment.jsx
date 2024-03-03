@@ -10,8 +10,7 @@ import "../styles/Comment.css";
 
 
 
-
-const Comment = ({ postId, username, userId }) => {
+const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
     IsAuthenticated();
 
 
@@ -35,9 +34,9 @@ const Comment = ({ postId, username, userId }) => {
 
                 }
             });
-            console.log(response);
+
             setShowComment(response.data);
-            console.log(response.data)
+
         }
         catch (error) {
             console.error(error);
@@ -73,10 +72,9 @@ const Comment = ({ postId, username, userId }) => {
         fetchComments();
     }, [postId]);
 
-    const [ExitComment, setExitComment] = useState(false);
 
     const toggleComment = () => {
-        setExitComment(!ExitComment);
+        setShowCommentIndex(null)
     };
 
 
@@ -111,25 +109,27 @@ const Comment = ({ postId, username, userId }) => {
                 <div className="back">
                     <button onClick={toggleComment}><RxCross2 size={28} /></button>
                 </div>
-                {
-                    showComment.map((comment) => (
-                        <div className="commentContent" key={comment._id}>
-                     <div className="Onecomment">
-                        <div className="comentTitle">
-                        <span><strong>{comment.username}</strong></span>
-                        <span>{timeAgo(comment.createdAt)}</span> 
-                        </div>
-                    
-                        <div className="commetContent">
-                            
-                        <p>{comment.content}</p>
-                        </div>
-                     </div>
+                <div className="overall_onecomment">
+                    {
+                        showComment.map((comment) => (
+                            <div className="commentContent" key={comment._id}>
+                                <div className="Onecomment">
+                                    <div className="comentTitle">
+                                        <span><strong>{comment.username}</strong></span>
+                                        <span>{timeAgo(comment.createdAt)}</span>
+                                    </div>
 
-                        </div>
-                    ))
+                                    <div className="commetContent">
 
-                }
+                                        <p>{comment.content}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        ))
+
+                    }
+                </div>
             </div>
 
 
@@ -168,7 +168,7 @@ const Comment = ({ postId, username, userId }) => {
 
 
 
-                        <button className='btn2' type='submit'><IoSendOutline  /></button>
+                        <button className='btn2' type='submit'><IoSendOutline /></button>
 
                     </form>
                 </div>

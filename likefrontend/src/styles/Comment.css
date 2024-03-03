@@ -3,15 +3,22 @@
 .back{
     display: flex;
     justify-content: end;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: rgb(198, 209, 205);
     
 }
 .comment_container{
     height: 60vh;
+    width: 50vh;
 }
 
 .showComments{
     height: 80%;
     overflow: auto;
+    scrollbar-width: none;
+    
 }
 .formContainer{
     width: 100%;
@@ -42,6 +49,10 @@
 input{
 width: 70%;
 }
+.back button{
+    background-color: transparent;
+    border: none;
+}
 
 .btn2{
     
@@ -55,11 +66,16 @@ width: 70%;
   .Onecomment{
     display: flex;
     flex-direction: column;
-    width: 70%;
+    width: 90%;
     background-color: rgb(225, 235, 244);
     border-radius: 10px;
-    padding: 10px;
+    padding: 5px 10px;
+    border: 1px solid black;
+    margin: 5px;
+  
   }
+
+ 
 
 .comentTitle{
     display: flex;

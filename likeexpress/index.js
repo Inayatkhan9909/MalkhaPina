@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const  {Registerhandler,loginhandler}= require("./Controllers/UserController")
 const {CreatePost,addlike,addcomment} = require("./Controllers/PostController");
-const {getPost ,getComment}= require("./Controllers/GetPostController")
+const {getPost ,getComment,getlikes}= require("./Controllers/GetPostController")
 const cors = require("cors");
 
 
@@ -35,10 +35,12 @@ app.post("/user/register", Registerhandler);
  app.post("/user/login", loginhandler);
  app.post("/post/create", CreatePost);
  app.post("/post/comment",addcomment)
+ app.post("/post/addlike",addlike)
 
 
 
  app.get('/post/getpost', getPost);
  app.get('/post/getcomment', getComment);
+ app.get('/post/getlikes', getlikes);
 
 app.listen(Port, console.log(`server conected on localhost : ${Port} `));

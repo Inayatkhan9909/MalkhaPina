@@ -1,24 +1,25 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import '../styles/Home.css'
-import likeicon from "../assets/like.png"
-import likedicon from "../assets/liked.png"
 import commenticon from "../assets/comment.png"
 import Comment from './Comment';
+import { AiOutlineLike } from "react-icons/ai";
 
 
 
 const Home = () => {
 
     const [postData, setpostData] = useState([]);
-    
+
+
+
     const fetechPosts = async () => {
         try {
 
-            const response = await axios.get("http://localhost:4000/post/getPost")
-            const data = await response.data;
-            setpostData(data);
+            const response = await axios.get("http://localhost:4000/post/getPost");
 
+            const data = response.data;
+            setpostData(data);
         }
         catch (error) {
             console.log(error);
@@ -61,7 +62,45 @@ const Home = () => {
         fetechPosts();
     }, [])
 
-  
+    const [liked, setLiked] = useState(false);
+
+    const handleLike = async (postId, userId) => {
+        try {
+
+            const likedata = {
+                postId: postId,
+                userId: userId
+            };
+
+            await axios.post(`http://localhost:4000/post/addlike`, likedata);
+
+
+            const response = await axios.get('http://localhost:4000/post/getlikes', {
+                params: {
+                    postId: postId,
+                    userId: userId
+
+                }
+            });
+
+
+            const likedId = response.data;
+            console.log(likedId + "  " + typeof (liked));
+            if (likedId) {
+                setLiked(!liked);
+                console.log("!liked");
+            }
+            else {
+                setLiked(liked);
+                console.log("liked");
+            }
+
+
+        } catch (error) {
+            console.error("Error liking/unliking post:", error);
+        }
+    };
+
 
     return (
         <div>
@@ -79,35 +118,42 @@ const Home = () => {
                             </div>
 
                             <div className="reactioncount">
-                                <p className="author">{post.likes} likes</p>
+                                <p className="author">{post.likeby.length} likes</p>
                                 <p className="author">{post.comments.length} comments</p>
                             </div>
 
                             <div className="reaction">
 
-                                <div className="like">
-                                    <img src={likeicon} width={25} alt="no" />
+
+                                <div className="like"
+                                    style={{ color: liked ? 'blue' : 'black', cursor: 'pointer' }}
+                                    onClick={() => handleLike(post._id, post.user)}
+                                >
+                                    <AiOutlineLike size={24} />
+
                                 </div>
 
                                 <div className="comment">
                                     <button onClick={() => commentHandler(index)}>
                                         <img src={commenticon} width={30} alt="comment" />
                                     </button>
-                                    {showCommentIndex === index && <Comment postId={post._id} userId={post.user}   username={post.author} className="comment_container" />}
-                                   
-                                     
+                                    {showCommentIndex === index && <Comment showCommentIndex={showCommentIndex} setShowCommentIndex={setShowCommentIndex} postId={post._id} userId={post.user} username={post.author} className="comment_container" />}
+
                                     <div>
-                                   
+
                                     </div>
-                                   
+
                                 </div>
 
                             </div>
 
                         </div>
+
                     ))
 
+
                 }
+
             </div>
 
         </div>
