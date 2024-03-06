@@ -58,21 +58,23 @@ const CreatePost = async (req, res) => {
 const addlike = async (req, res) => {
 
     try {
-        const { postId, userId } = req.body;
-        
-         const isValidObjectId = await new mongoose.Types.ObjectId(postId);
+        const { postId, token } = req.body;
 
+        const decoded = jwt.verify(token, "secretkey");
+        const userId = decoded.userId;
+
+        const isValidObjectId = await new mongoose.Types.ObjectId(postId);
+
+        const post = await Post.findById({ _id: isValidObjectId });
        
-
- 
-
-        const post = await Post.findById({ _id:isValidObjectId });
         
-        if (!post.likeby.includes(userId)) {
+        const alreadyLiked = await post.likeby.includes(userId);
+
+        if (!alreadyLiked) {
             post.likeby.push(userId);
             const liked = post.save();
             if (liked) {
-                post.likes++;
+
                 res.json({ message: "you liked a post" });
             }
             else {
@@ -95,19 +97,18 @@ const addlike = async (req, res) => {
 const addcomment = async (req, res) => {
 
     try {
-        const  {postId ,userId,username} = req.body;
-       
+        const { postId, userId, username } = req.body;
 
         const post = await Post.findById(postId);
         const content = req.body.content
 
-        if (content !== "" && username !=="") {
+        if (content !== "" && username !== "") {
             const newcomment = {
                 content: content,
                 user: userId,
-                username:username
+                username: username
             };
-                post.comments.push(newcomment);
+            post.comments.push(newcomment);
             const com = await post.save();
             if (com) {
                 res.json({ message: "comment added" });
@@ -118,7 +119,7 @@ const addcomment = async (req, res) => {
 
         }
         else {
-            res.json({message:"Can't post empty comment"});
+            res.json({ message: "Can't post empty comment" });
         }
 
 

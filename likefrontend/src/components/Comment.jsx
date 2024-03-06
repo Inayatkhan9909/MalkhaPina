@@ -14,7 +14,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
     IsAuthenticated();
 
 
-    console.log("username " + username)
+ 
     const [showComment, setShowComment] = useState([]);
     const [newComment, addnewComment] = useState({
         content: "",
@@ -36,13 +36,14 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
             });
 
             setShowComment(response.data);
+     
 
         }
         catch (error) {
             console.error(error);
             toast.error("somethingwent wrong");
         }
-    }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -68,9 +69,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
     }
 
 
-    useEffect(() => {
-        fetchComments();
-    }, [postId]);
+  
 
 
     const toggleComment = () => {
@@ -86,7 +85,9 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
         const elapsedMinutes = Math.floor(elapsedSeconds / 60);
         const elapsedHours = Math.floor(elapsedMinutes / 60);
         const elapsedDays = Math.floor(elapsedHours / 24);
-
+        const elapsedWeeks = Math.floor(elapsedDays / 7);
+        const elapsedMonths = Math.floor(elapsedDays / 30);
+    
         if (elapsedSeconds < 60) {
             return 'just now';
         } else if (elapsedMinutes < 60) {
@@ -95,10 +96,25 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
             return `${elapsedHours} hour${elapsedHours > 1 ? 's' : ''} ago`;
         } else if (elapsedDays === 1) {
             return 'yesterday';
+        } else if (elapsedDays < 7) {
+            return `${elapsedDays} day${elapsedDays > 1 ? 's' : ''} ago`;
+        } else if (elapsedWeeks === 1) {
+            return '1 week ago';
+        } else if (elapsedWeeks < 4) {
+            return `${elapsedWeeks} weeks ago`;
+        } else if (elapsedMonths === 1) {
+            return '1 month ago';
+        } else if (elapsedMonths < 12) {
+            return `${elapsedMonths} months ago`;
         } else {
-            return postTime.toLocaleDateString();
+            return postTime.toLocaleD
         }
-    }
+    }  
+    
+    useEffect(() => {
+        fetchComments();
+    }, [showComment]);
+    
 
     return (
         <div className='comment_container'>
@@ -109,8 +125,11 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
                 <div className="back">
                     <button onClick={toggleComment}><RxCross2 size={28} /></button>
                 </div>
+               
                 <div className="overall_onecomment">
+               
                     {
+                       
                         showComment.map((comment) => (
                             <div className="commentContent" key={comment._id}>
                                 <div className="Onecomment">
@@ -163,9 +182,6 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
                             onChange={handleChange}
                             placeholder='comment'
                         />
-
-
-
 
 
                         <button className='btn2' type='submit'><IoSendOutline /></button>

@@ -2,7 +2,7 @@
 
 .back{
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     position: sticky;
     top: 0;
     z-index: 10;

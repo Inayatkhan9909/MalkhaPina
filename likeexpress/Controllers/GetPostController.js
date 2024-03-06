@@ -1,10 +1,10 @@
 const Post = require("../Models/PostModel");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const getPost = async (req, res) => {
 
     try {
-
 
 
         const posts = await Post.find()
@@ -14,7 +14,6 @@ const getPost = async (req, res) => {
         else {
             res.json({ message: "nothing to show" });
         }
-
     }
     catch (error) {
         console.log(error);
@@ -37,8 +36,6 @@ const getComment = async (req, res) => {
             res.json({ message: "no comment avalible" })
         }
 
-
-
     }
     catch (error) {
         console.log(error);
@@ -50,22 +47,35 @@ const getlikes = async (req, res) => {
 
     try {
 
-        const { postId } = req.query;
 
-        const postIdObject = new mongoose.Types.ObjectId(postId);
-        const post = await Post.findById({ _id: postIdObject });
-        const liker = post.likeby;
+        const { postId, token } = req.query;
 
-        const objectIdString = liker.toString();
-        if (objectIdString) {
+        const decoded = jwt.verify(token, "secretkey");
+        const userId = decoded.userId;
 
-            res.json(objectIdString)
+        // console.log("postId is  " + postId)
+        const ispost = await Post.findById(postId);
+
+        // console.log("userId is  " + userId)
+        // console.log("ispost is " + ispost)
+        const alreadyLiked = await ispost.likeby.includes(userId);
+
+        if (alreadyLiked) {
+            res.json(alreadyLiked);
+
+            // const index = ispost.likeby.indexOf(userId);
+
+            // if (index !== -1) {
+
+            //     console.log(index)
+            //     res.json({ index });
+            // } else {
+            //     res.json({ message: "User ID not found in the likeby array" });
+            // }
         }
         else {
-            res.json({ message: "no like avalible" })
+            res.json({ message: "no like avalible" });
         }
-
-
 
     }
     catch (error) {

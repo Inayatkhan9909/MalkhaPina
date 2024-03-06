@@ -3,14 +3,15 @@ import React, { useEffect, useState } from 'react'
 import '../styles/Home.css'
 import commenticon from "../assets/comment.png"
 import Comment from './Comment';
-import { AiOutlineLike } from "react-icons/ai";
+import { AiOutlineLike, AiFillLike } from "react-icons/ai";
+import { jwtDecode } from 'jwt-decode';
 
 
 
 const Home = () => {
 
     const [postData, setpostData] = useState([]);
-
+    const [likedPosts, setLikedPosts] = useState([]);
 
 
     const fetechPosts = async () => {
@@ -20,6 +21,24 @@ const Home = () => {
 
             const data = response.data;
             setpostData(data);
+            const token = localStorage.getItem('token');
+
+            const decodedToken = jwtDecode(token);
+
+
+            const userId = decodedToken.userId;
+
+            // setLikedPosts(new Array(data.length).fill(false));
+
+            //  const likedata = data.flatMap((like) => like.likeby);
+
+
+            const initialLikedStatus = await Promise.all(data.map(async (post) => {
+                const alreadyLiked = post.likeby.includes(userId);
+                return alreadyLiked;
+            }));
+            setLikedPosts(initialLikedStatus);
+
         }
         catch (error) {
             console.log(error);
@@ -37,6 +56,8 @@ const Home = () => {
         const elapsedMinutes = Math.floor(elapsedSeconds / 60);
         const elapsedHours = Math.floor(elapsedMinutes / 60);
         const elapsedDays = Math.floor(elapsedHours / 24);
+        const elapsedWeeks = Math.floor(elapsedDays / 7);
+        const elapsedMonths = Math.floor(elapsedDays / 30);
 
         if (elapsedSeconds < 60) {
             return 'just now';
@@ -46,8 +67,18 @@ const Home = () => {
             return `${elapsedHours} hour${elapsedHours > 1 ? 's' : ''} ago`;
         } else if (elapsedDays === 1) {
             return 'yesterday';
+        } else if (elapsedDays < 7) {
+            return `${elapsedDays} day${elapsedDays > 1 ? 's' : ''} ago`;
+        } else if (elapsedWeeks === 1) {
+            return '1 week ago';
+        } else if (elapsedWeeks < 4) {
+            return `${elapsedWeeks} weeks ago`;
+        } else if (elapsedMonths === 1) {
+            return '1 month ago';
+        } else if (elapsedMonths < 12) {
+            return `${elapsedMonths} months ago`;
         } else {
-            return postTime.toLocaleDateString();
+            return postTime.toLocaleD
         }
     }
 
@@ -58,48 +89,39 @@ const Home = () => {
         setShowCommentIndex(prevIndex => prevIndex === index ? null : index);
     };
 
-    useEffect(() => {
-        fetechPosts();
-    }, [])
 
-    const [liked, setLiked] = useState(false);
 
-    const handleLike = async (postId, userId) => {
+    const handleLike = async (postId, index) => {
         try {
 
+            const token = localStorage.getItem('token');
             const likedata = {
                 postId: postId,
-                userId: userId
+                token: token
             };
 
-            await axios.post(`http://localhost:4000/post/addlike`, likedata);
+            // Add Like
+            await axios.post('http://localhost:4000/post/addlike', likedata);
 
 
-            const response = await axios.get('http://localhost:4000/post/getlikes', {
-                params: {
-                    postId: postId,
-                    userId: userId
-
-                }
+            setLikedPosts(prevLikedPosts => {
+                const newLikedPosts = [...prevLikedPosts];
+                newLikedPosts[index] = !newLikedPosts[index];
+                return newLikedPosts;
             });
 
-
-            const likedId = response.data;
-            console.log(likedId + "  " + typeof (liked));
-            if (likedId) {
-                setLiked(!liked);
-                console.log("!liked");
-            }
-            else {
-                setLiked(liked);
-                console.log("liked");
-            }
 
 
         } catch (error) {
             console.error("Error liking/unliking post:", error);
         }
     };
+
+    useEffect(() => {
+        fetechPosts();
+    }, []);
+
+
 
 
     return (
@@ -117,27 +139,31 @@ const Home = () => {
                                 <p className="description">{post.description}</p>
                             </div>
 
+
+
                             <div className="reactioncount">
                                 <p className="author">{post.likeby.length} likes</p>
+
                                 <p className="author">{post.comments.length} comments</p>
                             </div>
 
                             <div className="reaction">
 
 
-                                <div className="like"
-                                    style={{ color: liked ? 'blue' : 'black', cursor: 'pointer' }}
-                                    onClick={() => handleLike(post._id, post.user)}
-                                >
-                                    <AiOutlineLike size={24} />
 
+                            <div className="like" onClick={() => handleLike(post._id, index)}>
+
+                                    {likedPosts[index] ? <AiFillLike style={{ fill: 'blue' }} size={30} /> : <AiOutlineLike size={30} />}
                                 </div>
+
+                                {/* Comment Portion */}
 
                                 <div className="comment">
                                     <button onClick={() => commentHandler(index)}>
                                         <img src={commenticon} width={30} alt="comment" />
                                     </button>
-                                    {showCommentIndex === index && <Comment showCommentIndex={showCommentIndex} setShowCommentIndex={setShowCommentIndex} postId={post._id} userId={post.user} username={post.author} className="comment_container" />}
+                                    {showCommentIndex === index && <Comment showCommentIndex={showCommentIndex} setShowCommentIndex={setShowCommentIndex}
+                                        postId={post._id} userId={post.user} username={post.author} className="comment_container" />}
 
                                     <div>
 
