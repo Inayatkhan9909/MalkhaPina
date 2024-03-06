@@ -14,7 +14,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
     IsAuthenticated();
 
 
- 
+
     const [showComment, setShowComment] = useState([]);
     const [newComment, addnewComment] = useState({
         content: "",
@@ -36,7 +36,6 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
             });
 
             setShowComment(response.data);
-     
 
         }
         catch (error) {
@@ -55,7 +54,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
         try {
             const response = await axios.post("http://localhost:4000/post/comment", newComment);
             if (response.data.message === "comment added") {
-                toast.success(response.data.message);
+
             }
             else {
                 toast.error(response.data.message);
@@ -69,7 +68,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
     }
 
 
-  
+
 
 
     const toggleComment = () => {
@@ -87,7 +86,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
         const elapsedDays = Math.floor(elapsedHours / 24);
         const elapsedWeeks = Math.floor(elapsedDays / 7);
         const elapsedMonths = Math.floor(elapsedDays / 30);
-    
+
         if (elapsedSeconds < 60) {
             return 'just now';
         } else if (elapsedMinutes < 60) {
@@ -109,12 +108,12 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
         } else {
             return postTime.toLocaleD
         }
-    }  
-    
+    }
+
     useEffect(() => {
         fetchComments();
     }, [showComment]);
-    
+
 
     return (
         <div className='comment_container'>
@@ -125,11 +124,11 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
                 <div className="back">
                     <button onClick={toggleComment}><RxCross2 size={28} /></button>
                 </div>
-               
+
                 <div className="overall_onecomment">
-               
+
                     {
-                       
+
                         showComment.map((comment) => (
                             <div className="commentContent" key={comment._id}>
                                 <div className="Onecomment">

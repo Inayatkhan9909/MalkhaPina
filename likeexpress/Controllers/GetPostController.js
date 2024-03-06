@@ -43,45 +43,45 @@ const getComment = async (req, res) => {
     }
 }
 
-const getlikes = async (req, res) => {
+// const getlikes = async (req, res) => {
 
-    try {
+//     try {
 
 
-        const { postId, token } = req.query;
+//         const { postId, token } = req.query;
 
-        const decoded = jwt.verify(token, "secretkey");
-        const userId = decoded.userId;
+//         const decoded = jwt.verify(token, "secretkey");
+//         const userId = decoded.userId;
 
-        // console.log("postId is  " + postId)
-        const ispost = await Post.findById(postId);
+//         // console.log("postId is  " + postId)
+//         const ispost = await Post.findById(postId);
 
-        // console.log("userId is  " + userId)
-        // console.log("ispost is " + ispost)
-        const alreadyLiked = await ispost.likeby.includes(userId);
+//         // console.log("userId is  " + userId)
+//         // console.log("ispost is " + ispost)
+//         const alreadyLiked = await ispost.likeby.includes(userId);
 
-        if (alreadyLiked) {
-            res.json(alreadyLiked);
+//         if (alreadyLiked) {
+//             res.json(alreadyLiked);
 
-            // const index = ispost.likeby.indexOf(userId);
+//             // const index = ispost.likeby.indexOf(userId);
 
-            // if (index !== -1) {
+//             // if (index !== -1) {
 
-            //     console.log(index)
-            //     res.json({ index });
-            // } else {
-            //     res.json({ message: "User ID not found in the likeby array" });
-            // }
-        }
-        else {
-            res.json({ message: "no like avalible" });
-        }
+//             //     console.log(index)
+//             //     res.json({ index });
+//             // } else {
+//             //     res.json({ message: "User ID not found in the likeby array" });
+//             // }
+//         }
+//         else {
+//             res.json({ message: "no like avalible" });
+//         }
 
-    }
-    catch (error) {
-        console.log(error);
-        res.json({ message: "something went wrong" });
-    }
-}
+//     }
+//     catch (error) {
+//         console.log(error);
+//         res.json({ message: "something went wrong" });
+//     }
+// }
 
-module.exports = { getPost, getComment, getlikes }
+module.exports = { getPost, getComment }

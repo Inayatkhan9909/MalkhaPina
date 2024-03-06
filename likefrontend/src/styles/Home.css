@@ -57,7 +57,12 @@ height: 10%;
 .comment{
     position: relative;
    
+    button{
+        background-color: transparent;
+        border: nones;
+    }
 }
+
 
 .comment_container{
     

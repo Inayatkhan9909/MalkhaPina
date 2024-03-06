@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import '../styles/Home.css'
 import commenticon from "../assets/comment.png"
 import Comment from './Comment';
-import { AiOutlineLike, AiFillLike } from "react-icons/ai";
+import { AiOutlineLike, AiFillLike, AiFillDislike, AiOutlineDislike } from "react-icons/ai";
+
 import { jwtDecode } from 'jwt-decode';
 
 
@@ -12,11 +13,13 @@ const Home = () => {
 
     const [postData, setpostData] = useState([]);
     const [likedPosts, setLikedPosts] = useState([]);
+    const [dislikedPosts, setdisLikedPosts] = useState([]);
 
 
     const fetechPosts = async () => {
         try {
 
+            
             const response = await axios.get("http://localhost:4000/post/getPost");
 
             const data = response.data;
@@ -25,19 +28,22 @@ const Home = () => {
 
             const decodedToken = jwtDecode(token);
 
-
             const userId = decodedToken.userId;
 
             // setLikedPosts(new Array(data.length).fill(false));
 
             //  const likedata = data.flatMap((like) => like.likeby);
 
-
             const initialLikedStatus = await Promise.all(data.map(async (post) => {
                 const alreadyLiked = post.likeby.includes(userId);
                 return alreadyLiked;
             }));
             setLikedPosts(initialLikedStatus);
+            const initialdisLikedStatus = await Promise.all(data.map(async (post) => {
+                const alreadydisLiked = post.dislikeby.includes(userId);
+                return alreadydisLiked;
+            }));
+            setdisLikedPosts(initialdisLikedStatus);
 
         }
         catch (error) {
@@ -89,6 +95,24 @@ const Home = () => {
         setShowCommentIndex(prevIndex => prevIndex === index ? null : index);
     };
 
+      const handledisLike = async (postId,index) =>{
+
+        const token = localStorage.getItem('token');
+        const likedata = {
+            postId: postId,
+            token: token
+        };
+
+        // Add Like
+        await axios.post('http://localhost:4000/post/adddislike', likedata);
+        setdisLikedPosts(prevdisLikedPosts => {
+            const newdisLikedPosts = [...prevdisLikedPosts];
+            newdisLikedPosts[index] = !newdisLikedPosts[index];
+            return newdisLikedPosts;
+        });
+
+
+      }
 
 
     const handleLike = async (postId, index) => {
@@ -110,19 +134,16 @@ const Home = () => {
                 return newLikedPosts;
             });
 
-
-
         } catch (error) {
             console.error("Error liking/unliking post:", error);
         }
     };
 
+
+
     useEffect(() => {
         fetechPosts();
-    }, []);
-
-
-
+    }, [handleLike,handledisLike]);
 
     return (
         <div>
@@ -143,6 +164,7 @@ const Home = () => {
 
                             <div className="reactioncount">
                                 <p className="author">{post.likeby.length} likes</p>
+                                <p className="author">{post.dislikeby.length} dislikes</p>
 
                                 <p className="author">{post.comments.length} comments</p>
                             </div>
@@ -151,9 +173,13 @@ const Home = () => {
 
 
 
-                            <div className="like" onClick={() => handleLike(post._id, index)}>
+                                <div className="like" onClick={() => handleLike(post._id, index)}>
 
                                     {likedPosts[index] ? <AiFillLike style={{ fill: 'blue' }} size={30} /> : <AiOutlineLike size={30} />}
+                                </div>
+                                <div className="dislike" onClick={() => handledisLike(post._id, index)}>
+
+                                    {dislikedPosts[index] ? <AiFillDislike style={{ fill: 'blue' }} size={30} /> : <AiOutlineDislike size={30} />}
                                 </div>
 
                                 {/* Comment Portion */}
