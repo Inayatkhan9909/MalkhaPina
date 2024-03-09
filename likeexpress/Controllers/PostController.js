@@ -54,13 +54,12 @@ const CreatePost = async (req, res) => {
 }
 
 
-
 const addlike = async (req, res) => {
 
     try {
         const { postId, token } = req.body;
 
-        const decoded = jwt.verify(token, "secretkey");
+        const decoded = await jwt.verify(token, "secretkey");
         const userId = decoded.userId;
 
         const isValidObjectId = await new mongoose.Types.ObjectId(postId);
@@ -68,71 +67,53 @@ const addlike = async (req, res) => {
         const post = await Post.findById({ _id: isValidObjectId });
 
         if (userId) {
-            const alreadyLiked = await post.likeby.includes(userId);
+
 
             const alreadydisLiked = await post.dislikeby.includes(userId);
 
-            if (!alreadydisLiked) {
+            if (alreadydisLiked) {
 
-                if (!alreadyLiked) {
-                    post.likeby.push(userId);
-                    const liked = await post.save();
-                    if (liked) {
-
-                       
-                    }
-                    else {
-                        res.json("like failed");
-                    }
-
-                }
-                else {
-                    const index = post.likeby.indexOf(userId);
-
-                    // If the user ID is found, remove it
-                    if (index !== -1) {
-                        post.likeby.splice(index, 1);
-                        await post.save();
-                    }
-
-                }
-
-            }
-            else {
-                const index = post.dislikeby.indexOf(userId);
+                const index = await post.dislikeby.indexOf(userId);
 
                 // If the user ID is found, remove it
                 if (index !== -1) {
-                    post.dislikeby.splice(index, 1);
+                    await post.dislikeby.splice(index, 1);
                     await post.save();
                 }
 
 
-                if (!alreadyLiked) {
-                    post.likeby.push(userId);
-                    const liked = await post.save();
-                    if (liked) {
+            }
 
-                    
-                    }
-                    else {
-                        res.json("like failed");
-                    }
+            const alreadyLiked = await post.likeby.includes(userId);
 
+            if (!alreadyLiked) {
+                await post.likeby.push(userId);
+                const liked = await post.save();
+                if (liked) {
+
+                    res.json({ message: "like done" })
                 }
                 else {
-                    const index = post.likeby.indexOf(userId);
-
-                    // If the user ID is found, remove it
-                    if (index !== -1) {
-                        post.likeby.splice(index, 1);
-                        await post.save();
-                       
-                    }
-
+                    res.json({ message: "like failed" });
                 }
 
             }
+            else {
+                const index = await post.likeby.indexOf(userId);
+
+                // If the user ID is found, remove it
+                if (index !== -1) {
+                    await post.likeby.splice(index, 1);
+                    await post.save();
+                    res.json({ message: "like removed" });
+                }
+                else {
+                    res.json({ message: "like remove failed" });
+                }
+
+            }
+
+
         }
         else {
             res.json({ message: "login first" });
@@ -148,78 +129,61 @@ const addlike = async (req, res) => {
 }
 
 
-
-
 const adddislike = async (req, res) => {
 
     try {
         const { postId, token } = req.body;
+        if (token) {
 
-        const decoded = jwt.verify(token, "secretkey");
-        const userId = decoded.userId;
 
-        const isValidObjectId = await new mongoose.Types.ObjectId(postId);
+            const decoded = await jwt.verify(token, "secretkey");
+            const userId = decoded.userId;
 
-        const post = await Post.findById({ _id: isValidObjectId });
 
-        if (userId) {
+            const post = await Post.findById(postId);
+
+
+
+            const alreadyLiked = await post.likeby.includes(userId);
+            if (alreadyLiked) {
+                const index = await post.likeby.indexOf(userId);
+
+                // If the user ID is found, remove it
+                if (index !== -1) {
+                    await post.likeby.splice(index, 1);
+                    await post.save();
+                   
+                }
+
+            }
             const alreadydisLiked = await post.dislikeby.includes(userId);
 
             if (!alreadydisLiked) {
 
-                const alreadyLiked = await post.likeby.includes(userId);
+                await post.dislikeby.push(userId);
+                const disliked = await post.save();
+                if (disliked) {
 
-                if (alreadyLiked) {
-                    const index = post.likeby.indexOf(userId);
-
-                    // If the user ID is found, remove it
-                    if (index !== -1) {
-                        post.likeby.splice(index, 1);
-                        await post.save();
-                        // res.json({ message: "liked removed" });
-                    }
-
-                    post.dislikeby.push(userId);
-                    const disliked = await post.save();
-                    if (disliked) {
-
-                        // res.json({ message: "you disliked a post" });
-                    }
-                    else {
-                        res.json("dislike failed");
-                    }
-
+                    res.json({ message: "you disliked a post" });
                 }
                 else {
-                    post.dislikeby.push(userId);
-                    const disliked = await post.save();
-                    if (disliked) {
-
-                        // res.json({ message: "you disliked a post" });
-                    }
-                    else {
-                        res.json("dislike failed");
-                    }
-
+                    res.json("dislike failed");
                 }
-
-
             }
             else {
-                const index = post.dislikeby.indexOf(userId);
+                const index = await post.dislikeby.indexOf(userId);
 
                 // If the user ID is found, remove it
                 if (index !== -1) {
-                    post.dislikeby.splice(index, 1);
+                    await post.dislikeby.splice(index, 1);
                     await post.save();
-                    // res.json({ message: "disliked removed" });
+                    res.json({ message: "disliked removed" });
                 }
             }
         }
         else {
             res.json({ message: "login first" });
         }
-
 
     }
     catch (error) {

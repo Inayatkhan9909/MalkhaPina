@@ -6,7 +6,6 @@ const getPost = async (req, res) => {
 
     try {
 
-
         const posts = await Post.find()
         if (posts) {
             res.json(posts);
@@ -14,6 +13,54 @@ const getPost = async (req, res) => {
         else {
             res.json({ message: "nothing to show" });
         }
+    }
+    catch (error) {
+        console.log(error);
+        res.json({ message: "something went wrong" });
+    }
+}
+
+
+const getPostbyId = async (req, res) => {
+
+    try {
+
+        const { postId, token } = req.query;
+        if (token !== null) {
+
+         
+            const post = await Post.findById(postId)
+            if (post) {
+                const decoded = jwt.verify(token, "secretkey");
+                const userId = decoded.userId;
+
+                if (userId) {
+                    if (post.user.toString() === userId) {
+
+                        console.log(userId)
+                        console.log(typeof (userId))
+                        res.json({ message: "post found", post })
+                    }
+                    else {
+                        res.json({ message: "post not found" })
+                    }
+                }
+                else {
+                    res.json({ message: "Invalid user login first" })
+                }
+
+            }
+            else {
+
+                res.json({ message: "post not found" })
+            }
+
+        }
+        else {
+            res.json({ message: "login first" })
+        }
+
+
     }
     catch (error) {
         console.log(error);
@@ -84,4 +131,4 @@ const getComment = async (req, res) => {
 //     }
 // }
 
-module.exports = { getPost, getComment }
+module.exports = { getPost, getComment, getPostbyId }

@@ -27,7 +27,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
 
     const fetchComments = async () => {
         try {
-
+            
             const response = await axios.get("http://localhost:4000/post/getcomment", {
                 params: {
                     postId: postId,
@@ -49,12 +49,14 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
         addnewComment({ ...newComment, [name]: value });
     };
 
+         const [renderNewComment,setrenderNewComment] = useState(false)
     const submitComment = async (e) => {
         e.preventDefault();
         try {
+
             const response = await axios.post("http://localhost:4000/post/comment", newComment);
             if (response.data.message === "comment added") {
-
+                setrenderNewComment(!renderNewComment)
             }
             else {
                 toast.error(response.data.message);
@@ -66,9 +68,6 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
             toast.error("somethingwent wrong");
         }
     }
-
-
-
 
 
     const toggleComment = () => {
@@ -112,7 +111,7 @@ const Comment = ({ postId, username, userId, setShowCommentIndex }) => {
 
     useEffect(() => {
         fetchComments();
-    }, [showComment]);
+    },[renderNewComment]);
 
 
     return (

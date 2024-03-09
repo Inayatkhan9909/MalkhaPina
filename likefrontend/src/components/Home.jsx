@@ -1,11 +1,13 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import '../styles/Home.css'
 import commenticon from "../assets/comment.png"
 import Comment from './Comment';
 import { AiOutlineLike, AiFillLike, AiFillDislike, AiOutlineDislike } from "react-icons/ai";
+import { PiDotsThreeOutlineFill } from "react-icons/pi";
 
 import { jwtDecode } from 'jwt-decode';
+import Modifypost from './Modifypost';
 
 
 
@@ -14,12 +16,13 @@ const Home = () => {
     const [postData, setpostData] = useState([]);
     const [likedPosts, setLikedPosts] = useState([]);
     const [dislikedPosts, setdisLikedPosts] = useState([]);
+    const [isLikeProcessing, setIsLikeProcessing] = useState(false);
 
 
-    const fetechPosts = async () => {
+    const fetechPosts = useCallback(async () => {
         try {
 
-            
+
             const response = await axios.get("http://localhost:4000/post/getPost");
 
             const data = response.data;
@@ -30,9 +33,6 @@ const Home = () => {
 
             const userId = decodedToken.userId;
 
-            // setLikedPosts(new Array(data.length).fill(false));
-
-            //  const likedata = data.flatMap((like) => like.likeby);
 
             const initialLikedStatus = await Promise.all(data.map(async (post) => {
                 const alreadyLiked = post.likeby.includes(userId);
@@ -50,7 +50,7 @@ const Home = () => {
             console.log(error);
 
         }
-    }
+    }, [])
 
 
 
@@ -95,7 +95,12 @@ const Home = () => {
         setShowCommentIndex(prevIndex => prevIndex === index ? null : index);
     };
 
-      const handledisLike = async (postId,index) =>{
+   
+          const [changeDislike,setchangeDislike] = useState(false)
+
+
+          
+    const disLikehandle = async (postId, index) => {
 
         const token = localStorage.getItem('token');
         const likedata = {
@@ -104,19 +109,23 @@ const Home = () => {
         };
 
         // Add Like
-        await axios.post('http://localhost:4000/post/adddislike', likedata);
+     const done =   await axios.post('http://localhost:4000/post/adddislike', likedata);
+          if(done)
+          {
+            setchangeDislike(!changeDislike)
+          }
         setdisLikedPosts(prevdisLikedPosts => {
             const newdisLikedPosts = [...prevdisLikedPosts];
             newdisLikedPosts[index] = !newdisLikedPosts[index];
             return newdisLikedPosts;
         });
 
+    }
+    const [changeLikedata,setchangeLikedata,] = useState(false);
 
-      }
-
-
-    const handleLike = async (postId, index) => {
+    const Likehandle = async (postId, index) => {
         try {
+            setIsLikeProcessing(true);
 
             const token = localStorage.getItem('token');
             const likedata = {
@@ -125,9 +134,17 @@ const Home = () => {
             };
 
             // Add Like
-            await axios.post('http://localhost:4000/post/addlike', likedata);
-
-
+          const done =  await axios.post('http://localhost:4000/post/addlike', likedata);
+          if(done)
+          {
+            setchangeLikedata(!changeLikedata)
+          }
+          else
+          {
+            setchangeLikedata(changeLikedata)
+          }
+          
+            // Get likes with wiht respect to index
             setLikedPosts(prevLikedPosts => {
                 const newLikedPosts = [...prevLikedPosts];
                 newLikedPosts[index] = !newLikedPosts[index];
@@ -137,13 +154,20 @@ const Home = () => {
         } catch (error) {
             console.error("Error liking/unliking post:", error);
         }
+        finally {
+            setIsLikeProcessing(false); // Reset like processing
+        }
     };
 
+    const [showModifyIndex, setshowModifyIndex] = useState(false)
+    const handleModify = (index) => {
 
+        setshowModifyIndex(prevIndex => prevIndex === index ? null : index);
 
+    }
     useEffect(() => {
-        fetechPosts();
-    }, [handleLike,handledisLike]);
+        fetechPosts(); 
+    },[changeLikedata,changeDislike]);
 
     return (
         <div>
@@ -152,6 +176,10 @@ const Home = () => {
                 {
                     postData.map((post, index) => (
                         <div className="card" key={index}>
+                            <div className="modifypost">
+                                <button onClick={() => handleModify(index)}><PiDotsThreeOutlineFill size={20} /></button>
+                                {showModifyIndex === index ? <Modifypost postId={post._id} /> : null}
+                            </div>
 
                             <div className="details">
                                 <h2 className="title">{post.title}</h2>
@@ -159,7 +187,6 @@ const Home = () => {
                                 <p>Posted: {timeAgo(post.createdAt)}</p>
                                 <p className="description">{post.description}</p>
                             </div>
-
 
 
                             <div className="reactioncount">
@@ -172,12 +199,11 @@ const Home = () => {
                             <div className="reaction">
 
 
-
-                                <div className="like" onClick={() => handleLike(post._id, index)}>
+                                <div className="like" onClick={() => Likehandle(post._id, index)} disabled={isLikeProcessing}>
 
                                     {likedPosts[index] ? <AiFillLike style={{ fill: 'blue' }} size={30} /> : <AiOutlineLike size={30} />}
                                 </div>
-                                <div className="dislike" onClick={() => handledisLike(post._id, index)}>
+                                <div className="dislike" onClick={() => disLikehandle(post._id, index)}>
 
                                     {dislikedPosts[index] ? <AiFillDislike style={{ fill: 'blue' }} size={30} /> : <AiOutlineDislike size={30} />}
                                 </div>

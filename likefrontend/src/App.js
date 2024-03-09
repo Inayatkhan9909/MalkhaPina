@@ -8,6 +8,8 @@ import Home from './components/Home'
 import Post from './components/Post'
 import Comment from './components/Comment'
 import Profile from './components/Profile'
+import Modifypost from './components/Modifypost'
+import EditPost from './components/EditPost'
 
 const App = () => {
   return (
@@ -20,7 +22,9 @@ const App = () => {
         <Route path='/Login' element={<Login/>}/>
         <Route path='/Post' element={<Post/>}/>
         <Route path='/Comment' element={<Comment/>} />
+        <Route path='/Modifypost' element={<Modifypost/>} />
         <Route path='/Profile' element={<Profile/>} />
+        <Route path='/EditPost/:postId' element={<EditPost/>} />
        </Routes>
       </BrowserRouter>
 

@@ -18,14 +18,7 @@ const Post = () => {
         description: ""
     });
     const [token, settoken] = useState("");
-    // useEffect(() => {
-
-    //     const storedUserId = localStorage.getItem('userId');
-    //     if (storedUserId) {
-
-    //         setUserId(storedUserId);
-    //     }
-    // }, []);
+   
     useEffect(() => {
 
         const storedtoken = localStorage.getItem('token');

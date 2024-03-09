@@ -1,0 +1,36 @@
+
+.Modifypost_container{
+    position: absolute;
+    top: 2vh;
+    background-color: #e4e1e1;
+    z-index: 10;
+
+    >ul{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        list-style: none;
+        gap: 3vh;
+        background-color: rgb(225, 235, 244);
+        
+    }
+
+  
+    >ul li button{
+        
+        width: 100%;
+        
+    }
+    >ul li button{
+        
+        margin: auto;
+        padding: 10px 20px;
+    }
+    >ul li button:hover{
+        
+        background-color: rgb(179, 197, 212);
+
+    }
+}
+
